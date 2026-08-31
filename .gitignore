@@ -8,6 +8,7 @@ tools/*.tar.gz
 
 # Build output
 build/
+dist/
 *.rpm
 *.src.rpm
 

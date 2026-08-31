@@ -75,7 +75,25 @@ sudo dnf install ./build/rpms/noarch/jicofo-*.rpm \
 После установки настройте Prosody, `jicofo.conf`, `jvb.conf`, `config.js` и nginx с TLS.  
 Подробнее: [Jitsi handbook](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart).
 
-## Upstream
+## Сборка артефактов (локально)
+
+После `./build-rpms.sh all` RPM лежат в `build/rpms/noarch/`. Архив для ручной загрузки в GitHub Release:
+
+```bash
+mkdir -p dist
+tar czf dist/jitsi-meet-rpms.tar.gz -C build/rpms/noarch .
+```
+
+## GitHub Releases
+
+Тег `v*` запускает [GitHub Actions](.github/workflows/release-rpms.yml) — сборка RPM для **el9** и **fc44** и публикация в Release.
+
+```bash
+git tag v2.0.11146
+git push origin v2.0.11146
+```
+
+Локально собранные RPM (2026-08-31): `dist/jitsi-meet-rpms-el9-fc44-20260831.tar.gz` (~256 MB, 8 пакетов).
 
 - [jitsi/jitsi-meet](https://github.com/jitsi/jitsi-meet)
 - [jitsi/jitsi-videobridge](https://github.com/jitsi/jitsi-videobridge)
