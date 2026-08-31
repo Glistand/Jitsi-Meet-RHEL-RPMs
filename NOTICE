@@ -1,0 +1,17 @@
+Jitsi Meet RHEL RPMs
+Copyright 2026 Glistand
+
+This repository contains unofficial RPM packaging for Jitsi Meet on RHEL-family
+Linux distributions. It is not affiliated with, endorsed by, or sponsored by
+8x8, Inc. or the Jitsi project.
+
+The packaged software is built from upstream sources:
+
+  - https://github.com/jitsi/jitsi-meet
+  - https://github.com/jitsi/jitsi-videobridge
+  - https://github.com/jitsi/jicofo
+  - https://github.com/jitsi/jigasi
+  - https://github.com/jitsi/jibri
+
+Upstream components are licensed under the Apache License 2.0.
+See each upstream repository for copyright notices.

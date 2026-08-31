@@ -1,0 +1,5 @@
+# /etc/jitsi/jicofo/config
+# Пример переменных окружения для jicofo.service
+# JICOFO_OPTS=
+# JICOFO_MAX_MEMORY=3072m
+# JAVA_SYS_PROPS=

@@ -1,0 +1,5 @@
+# /etc/jitsi/videobridge/config
+# Пример переменных окружения для jitsi-videobridge.service
+# JVB_OPTS=
+# VIDEOBRIDGE_MAX_MEMORY=3072m
+# JAVA_SYS_PROPS=

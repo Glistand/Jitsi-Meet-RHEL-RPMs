@@ -1,0 +1,16 @@
+# Upstream sources (clone with ./scripts/clone-sources.sh)
+src/
+
+# Portable build tools (download with ./tools/bootstrap.sh)
+tools/jdk-*
+tools/apache-maven*
+tools/*.tar.gz
+
+# Build output
+build/
+*.rpm
+*.src.rpm
+
+# IDE / local
+.cursor/
+*.log
