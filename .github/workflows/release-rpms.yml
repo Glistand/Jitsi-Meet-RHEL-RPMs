@@ -24,7 +24,13 @@ jobs:
     steps:
       - name: Install build deps
         run: |
-          dnf install -y rpm-build git nodejs npm java-21-openjdk-devel unzip curl tar gcc-c++ make
+          set -eux
+          if grep -qiE 'rocky|almalinux|centos|rhel' /etc/os-release 2>/dev/null; then
+            dnf install -y epel-release
+          fi
+          dnf install -y rpm-build git java-21-openjdk-devel unzip curl tar gcc-c++ make python3
+          curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
+          dnf install -y nodejs
 
       - uses: actions/checkout@v4
 
