@@ -12,7 +12,15 @@
 | `jicofo` | Conference focus (сигнализация) |
 | `jitsi-videobridge` | Videobridge (медиа) |
 | `jitsi-meet-web` | Веб-клиент (статика) |
-| `jitsi` | Метапакет |
+| `jitsi-meet-prosody` | Lua-плагины Prosody (reservations, file sharing, tokens) |
+| `jitsi-meet-web-config` | nginx + config.js + TLS |
+| `jitsi-meet-file-sharing-service` | REST API отправки файлов в конференции |
+| `jitsi-reservation-api` | REST API бронирования комнат |
+| `keycloak` | OIDC/SSO (нативный tarball + systemd, без Docker) |
+| `jitsi-meet-auth-keycloak` | Шаблоны Prosody/config.js/nginx для Keycloak |
+| `jitsi` | Метапакет полного стека |
+
+Подробный план: [PLAN.md](PLAN.md).
 
 ## Быстрый старт
 
