@@ -86,7 +86,7 @@ tar czf dist/jitsi-meet-rpms.tar.gz -C build/rpms/noarch .
 
 ## GitHub Releases
 
-Тег `v*` запускает [GitHub Actions](.github/workflows/release-rpms.yml) — сборка RPM для **el9** и **fc44** и публикация в Release.
+Тег `v*` запускает [GitHub Actions](.github/workflows/release-rpms.yml) — сборка в контейнере **Fedora 44** (исходники один раз, RPM с суффиксами `.el9` и `.fc44`) и публикация в Release.
 
 ```bash
 git tag v2.0.11146

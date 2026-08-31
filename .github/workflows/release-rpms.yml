@@ -12,27 +12,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - dist: el9
-            image: rockylinux:9
-          - dist: fc44
-            image: fedora:44
+    timeout-minutes: 180
     container:
-      image: ${{ matrix.image }}
+      image: fedora:44
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install build deps
         run: |
           set -eux
-          if grep -qiE 'rocky|almalinux|centos|rhel' /etc/os-release 2>/dev/null; then
-            dnf install -y epel-release
-          fi
-          dnf install -y rpm-build git java-21-openjdk-devel unzip curl tar gcc-c++ make python3
-          curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
-          dnf install -y nodejs
-
-      - uses: actions/checkout@v4
+          dnf install -y --setopt=install_weak_deps=False --setopt=max_parallel_downloads=10 \
+            rpm-build git java-21-openjdk-devel unzip curl tar gcc-c++ make python3 \
+            nodejs npm
 
       - name: Bootstrap JDK/Maven
         run: ./tools/bootstrap.sh
@@ -40,15 +31,18 @@ jobs:
       - name: Clone upstream sources
         run: ./scripts/clone-sources.sh
 
-      - name: Build components and RPMs
-        run: PREBUILT=0 ./build-rpms.sh all
-        env:
-          TARGET_DIST: ${{ matrix.dist }}
+      - name: Build sources and RPMs (el9 + fc44)
+        run: |
+          set -eux
+          # Сборка исходников один раз, затем два набора noarch RPM с разным dist
+          PREBUILT=0 TARGET_DIST=el9 ./build-rpms.sh all
+          PREBUILT=1 TARGET_DIST=fc44 ./build-rpms.sh rpm
+          ls -lh build/rpms/noarch/*.rpm
 
       - name: Upload RPM artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpms-${{ matrix.dist }}
+          name: rpms
           path: build/rpms/noarch/*.rpm
 
   release:
@@ -58,11 +52,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
+          name: rpms
           path: artifacts
-          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.rpm
+          files: artifacts/*.rpm
           generate_release_notes: true
