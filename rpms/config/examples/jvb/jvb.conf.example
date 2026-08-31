@@ -1,0 +1,31 @@
+# /etc/jitsi/videobridge/jvb.conf
+
+videobridge {
+  apis {
+    xmpp-client {
+      configs {
+        shard {
+          HOSTNAME = "meet.example.com"
+          DOMAIN = "auth.meet.example.com"
+          USERNAME = "jvb"
+          PASSWORD = "JVB_USER_PASSWORD"
+          MUC_JIDS = "JvbBrewery@internal.auth.meet.example.com"
+        }
+      }
+    }
+  }
+}
+
+# За NAT раскомментируйте и укажите IP:
+# ice4j {
+#   harvest {
+#     mapping {
+#       static-mappings = [
+#         {
+#           local-address = "192.168.1.10"
+#           public-address = "203.0.113.50"
+#         }
+#       ]
+#     }
+#   }
+# }

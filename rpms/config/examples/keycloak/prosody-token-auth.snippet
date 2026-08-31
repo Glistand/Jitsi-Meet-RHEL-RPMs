@@ -1,0 +1,13 @@
+# Фрагмент для VirtualHost "meet.example.com" в Prosody
+# после настройки Keycloak realm jitsi-realm
+
+# authentication = "token"
+# app_id = "jitsi"
+# allow_empty_token = false
+# asap_accepted_issuers = { "https://meet.example.com/realms/jitsi-realm" }
+# asap_accepted_audiences = { "account" }
+# cache_keys_url = "https://meet.example.com/realms/jitsi-realm/protocol/openid-connect/certs"
+
+# VirtualHost "guest.meet.example.com"
+#     authentication = "jitsi-anonymous"
+#     c2s_require_encryption = false

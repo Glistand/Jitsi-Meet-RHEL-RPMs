@@ -75,25 +75,25 @@ sudo dnf install ./build/rpms/noarch/jicofo-*.rpm \
 После установки настройте Prosody, `jicofo.conf`, `jvb.conf`, `config.js` и nginx с TLS.  
 Подробнее: [Jitsi handbook](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart).
 
-## Сборка артефактов (локально)
-
-После `./build-rpms.sh all` RPM лежат в `build/rpms/noarch/`. Архив для ручной загрузки в GitHub Release:
-
-```bash
-mkdir -p dist
-tar czf dist/jitsi-meet-rpms.tar.gz -C build/rpms/noarch .
-```
-
 ## GitHub Releases
 
-Тег `v*` запускает [GitHub Actions](.github/workflows/release-rpms.yml) — сборка в контейнере **Fedora 44** (исходники один раз, RPM с суффиксами `.el9` и `.fc44`) и публикация в Release.
+Тег `v*` запускает [GitHub Actions](.github/workflows/release-rpms.yml). В Release публикуется **один архив** `jitsi-meet-rhel-<версия>.tar.gz`:
+
+| Путь в архиве | Содержимое |
+|---------------|------------|
+| `rpms/el9/` | RPM для RHEL 9 / Rocky / AlmaLinux |
+| `rpms/fc44/` | RPM для Fedora 44 |
+| `config-examples/` | Примеры Prosody, nginx, jicofo, JVB, Keycloak, file sharing, reservations |
+| `INSTALL-RHEL.md` | Инструкция по установке на RHEL |
+| `CHECKSUMS.sha256` | SHA256 всех RPM |
+
+Локальная сборка архива (после `./build-rpms.sh`):
 
 ```bash
-git tag v2.0.11146
-git push origin v2.0.11146
+chmod +x scripts/make-release-bundle.sh
+./scripts/make-release-bundle.sh v2.0.11146 build/rpms/noarch dist
+# → dist/jitsi-meet-rhel-2.0.11146.tar.gz
 ```
-
-Локально собранные RPM (2026-08-31): `dist/jitsi-meet-rpms-el9-fc44-20260831.tar.gz` (~256 MB, 8 пакетов).
 
 - [jitsi/jitsi-meet](https://github.com/jitsi/jitsi-meet)
 - [jitsi/jitsi-videobridge](https://github.com/jitsi/jitsi-videobridge)

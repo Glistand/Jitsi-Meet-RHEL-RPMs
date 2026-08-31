@@ -1,0 +1,16 @@
+# Prosody: short_lived_token + file-upload permission
+
+# short_lived_token = {
+#     issuer = 'prosody';
+#     accepted_audiences = { 'file-sharing' };
+#     key_path = '/etc/jitsi/file-sharing-service/short_lived_token.key';
+#     key_id = 'jitsi/short_lived_token';
+#     ttl_seconds = 30;
+# };
+# modules_enabled: добавьте 'short_lived_token' в VirtualHost meet.example.com
+
+# jitsi_default_permissions = {
+#     ['file-upload'] = true;
+#     livestreaming = true;
+#     recording = true;
+# };

@@ -1,0 +1,18 @@
+# /etc/jitsi/jicofo/jicofo.conf
+# HOCON. Замените meet.example.com и пароли.
+
+jicofo {
+  xmpp: {
+    client: {
+      client-proxy: "focus.meet.example.com"
+      xmpp-domain: "meet.example.com"
+      domain: "auth.meet.example.com"
+      username: "focus"
+      password: "FOCUS_USER_PASSWORD"
+      conference-muc-jid: "conference.meet.example.com"
+    }
+  }
+  bridge: {
+    brewery-jid: "JvbBrewery@internal.auth.meet.example.com"
+  }
+}
