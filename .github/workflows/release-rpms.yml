@@ -21,9 +21,9 @@ jobs:
       - name: Install build deps
         run: |
           set -eux
+          # JDK 21/Maven — portable из tools/bootstrap.sh, системная Java не нужна
           dnf install -y --setopt=install_weak_deps=False --setopt=max_parallel_downloads=10 \
-            rpm-build git java-21-openjdk-devel unzip curl tar gcc-c++ make python3 \
-            nodejs npm
+            rpm-build git unzip curl tar gcc-c++ make python3 nodejs npm
 
       - name: Bootstrap JDK/Maven
         run: ./tools/bootstrap.sh
