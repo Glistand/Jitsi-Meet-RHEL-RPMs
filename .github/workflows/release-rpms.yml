@@ -78,8 +78,8 @@ jobs:
             ## Состав архива `jitsi-meet-rhel-*.tar.gz`
 
             - **repo/el9/** — локальный DNF-репозиторий (Jitsi RPM + зависимости для офлайн-установки)
-            - **rpms/el9/** — только пакеты Jitsi (для обновления)
-            - **rpms/fc44/** — пакеты для Fedora 44 (noarch, совместимы по содержимому)
+            - **rpms/el9/** — пакеты Jitsi + Keycloak + file-sharing
+            - **rpms/fc44/** — пакеты для Fedora 44
             - **prosody-plugins/** — Lua-модули Prosody из jitsi-meet
             - **config-examples/** — примеры Prosody, nginx, jicofo, JVB, Keycloak, file sharing, reservations
             - **INSTALL-RHEL.md** — пошаговая установка на RHEL

@@ -1,0 +1,18 @@
+[Unit]
+Description=Jitsi Meet File Sharing Service
+Documentation=https://jitsi.github.io/handbook/docs/devops-guide/file-sharing/
+After=network-online.target prosody.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jitsi
+Group=jitsi
+EnvironmentFile=-/etc/jitsi/file-sharing-service/env
+WorkingDirectory=/usr/libexec/jitsi-meet-file-sharing-service
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

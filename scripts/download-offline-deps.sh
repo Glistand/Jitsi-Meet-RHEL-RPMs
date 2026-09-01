@@ -14,7 +14,7 @@ fi
 
 mkdir -p "$DEST"
 
-# Пакеты для базового стека Jitsi Meet (без certbot — для LE нужен интернет).
+# Пакеты для стека Jitsi Meet + Keycloak + file-sharing.
 EL9_PACKAGES=(
   java-21-openjdk-headless
   prosody
@@ -28,6 +28,8 @@ EL9_PACKAGES=(
   lua-socket
   openssl
   ca-certificates
+  postgresql-server
+  postgresql
   createrepo_c
 )
 
@@ -39,8 +41,10 @@ download_el9() {
   elif command -v dnf >/dev/null; then
     dnf config-manager --set-enabled crb 2>/dev/null || true
   fi
+  dnf module reset -y nodejs || true
+  dnf module enable -y nodejs:22
   dnf makecache -y
-  dnf download --resolve --destdir="$dest" "${EL9_PACKAGES[@]}"
+  dnf download --resolve --destdir="$dest" "${EL9_PACKAGES[@]}" nodejs
 }
 
 run_in_docker() {
@@ -68,11 +72,13 @@ dest="/out/$1"
 mkdir -p "$dest"
 dnf install -y epel-release dnf-plugins-core createrepo_c
 /usr/bin/crb enable || true
+dnf module reset -y nodejs || true
+dnf module enable -y nodejs:22
 dnf makecache -y
 dnf download --resolve --destdir="$dest" \
   java-21-openjdk-headless prosody nginx firewalld \
   lua-sec lua-basexx lua-luaossl lua-expat lua-filesystem lua-socket \
-  openssl ca-certificates createrepo_c
+  openssl ca-certificates postgresql-server postgresql createrepo_c nodejs
 DOCKEREOF
 }
 

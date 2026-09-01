@@ -1,0 +1,20 @@
+[Unit]
+Description=Keycloak IAM (OIDC for Jitsi Meet)
+Documentation=https://www.keycloak.org/documentation
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=idle
+User=keycloak
+Group=keycloak
+Environment=KC_HOME=/opt/keycloak
+Environment=KC_CONF_DIR=/etc/keycloak
+WorkingDirectory=/opt/keycloak
+ExecStart=/opt/keycloak/bin/kc.sh start --optimized --config-file=/etc/keycloak/keycloak.conf
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,8 @@ jitsi-meet-rhel-<версия>/
 │   ├── jicofo-*.rpm
 │   ├── jitsi-videobridge-*.rpm
 │   ├── jitsi-meet-web-*.rpm
+│   ├── keycloak-*.rpm
+│   ├── jitsi-meet-file-sharing-service-*.rpm
 │   └── jitsi-*.rpm          # метапакет (опционально)
 ├── rpms/fc44/               # Fedora 44 (если есть в релизе)
 ├── prosody-plugins/         # Lua-модули Prosody из jitsi-meet
@@ -184,25 +186,78 @@ sudo tail -f /var/log/jitsi/jvb.log
 sudo tail -f /var/log/prosody/prosody.log
 ```
 
-## 7. Опционально: Keycloak (SSO)
+## 7. Keycloak (SSO)
 
-Примеры фрагментов — в `config-examples/keycloak/` и `config-examples/prosody/token-auth.snippet`.
+RPM `keycloak` включён в архив. Зависит от PostgreSQL.
 
-1. Установите Keycloak нативно (tarball + PostgreSQL) или из будущего RPM этого репозитория.
-2. Создайте realm `jitsi-realm`, client `jitsi`.
-3. В Prosody включите `authentication = "token"` и `cache_keys_url` на JWKS Keycloak.
-4. В `config.js` добавьте `tokenAuthUrl`, `anonymousdomain` для гостей.
-5. В nginx проксируйте `/realms/` на Keycloak (см. `nginx-realms.snippet`).
+### PostgreSQL
+
+```bash
+sudo dnf install -y postgresql-server postgresql
+sudo postgresql-setup --initdb
+sudo systemctl enable --now postgresql
+
+sudo -u postgres psql <<'SQL'
+CREATE USER keycloak WITH PASSWORD 'CHANGE_ME_DB';
+CREATE DATABASE keycloak OWNER keycloak;
+SQL
+```
+
+### Keycloak
+
+```bash
+sudo dnf install -y keycloak   # или из offline-repo
+
+sudo sed -i 's/meet.example.com/ВАШ_ДОМЕН/g' /etc/keycloak/keycloak.conf
+sudo sed -i 's/CHANGE_ME_DB/ваш_пароль_бд/g' /etc/keycloak/keycloak.conf
+
+# первый admin (один раз)
+sudo -u keycloak /opt/keycloak/bin/kc.sh bootstrap-admin-user \
+  --config-file=/etc/keycloak/keycloak.conf \
+  --username admin --password 'AdminPass123!'
+
+sudo systemctl enable --now keycloak
+```
+
+### Интеграция с Jitsi
+
+Примеры фрагментов — в `config-examples/keycloak/`:
+
+1. Создайте в Keycloak realm `jitsi-realm`, client `jitsi` (OIDC).
+2. Prosody: `authentication = "token"`, `cache_keys_url` на JWKS — см. `prosody-token-auth.snippet`.
+3. `config.js`: `tokenAuthUrl`, `anonymousdomain` для гостей — см. `config.js.example`.
+4. nginx: прокси `/realms/` — `nginx-realms.snippet`.
 
 Документация: https://jitsi.github.io/handbook/docs/devops-guide/authentication/
 
-## 8. Опционально: отправка файлов
+## 8. File sharing (отправка файлов)
 
-После установки `jitsi-meet-file-sharing-service` (когда RPM будет в составе релиза):
+RPM `jitsi-meet-file-sharing-service` включён в архив. Требует **Node.js ≥ 22** (в offline-repo через `nodejs:22`).
 
-1. Настройте Prosody `short_lived_token` — см. `config-examples/file-sharing/prosody.snippet`
-2. Добавьте в nginx `location /file-service/` — `config-examples/file-sharing/nginx.snippet`
-3. В `config.js`: `config.fileSharing = { enabled: true, apiUrl: '...' }`
+```bash
+sudo dnf install -y jitsi-meet-file-sharing-service nodejs
+
+# ключи short_lived_token создаются при установке RPM в:
+# /etc/jitsi/file-sharing-service/short_lived_token.{key,pub}
+
+sudo sed -i 's/meet.example.com/ВАШ_ДОМЕН/g' \
+  /etc/jitsi/file-sharing-service/env
+
+sudo systemctl enable --now jitsi-meet-file-sharing-service
+```
+
+### Prosody + nginx + Meet
+
+1. Prosody `short_lived_token` — `config-examples/file-sharing/prosody.snippet`
+   - `key_path` = `/etc/jitsi/file-sharing-service/short_lived_token.key`
+2. nginx `location /file-service/` — `config-examples/file-sharing/nginx.snippet`
+3. `config.js`:
+   ```javascript
+   config.fileSharing = {
+       enabled: true,
+       apiUrl: 'https://ВАШ_ДОМЕН/file-service/v1/documents'
+   };
+   ```
 
 Документация: https://jitsi.github.io/handbook/docs/devops-guide/file-sharing/
 

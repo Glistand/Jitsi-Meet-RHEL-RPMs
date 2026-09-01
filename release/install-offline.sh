@@ -30,8 +30,10 @@ EOF
 echo "==> Installing packages from local repo (no internet)..."
 dnf clean all
 dnf install -y --disablerepo='*' --enablerepo=jitsi-meet-offline \
-  java-21-openjdk-headless prosody nginx firewalld \
-  jicofo jitsi-videobridge jitsi-meet-web jitsi
+  java-21-openjdk-headless prosody nginx firewalld nodejs \
+  postgresql-server postgresql \
+  jicofo jitsi-videobridge jitsi-meet-web \
+  keycloak jitsi-meet-file-sharing-service
 
 if [[ -d "$BUNDLE_DIR/prosody-plugins" ]]; then
   echo "==> Installing Prosody plugins..."
