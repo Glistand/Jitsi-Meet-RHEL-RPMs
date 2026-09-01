@@ -3,7 +3,7 @@
 
 Name:           keycloak
 Version:        26.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Keycloak IAM (native Quarkus distribution, no Docker)
 License:        ASL 2.0
 URL:            https://www.keycloak.org/
@@ -35,14 +35,14 @@ export KC_DB=postgres
 
 %install
 install -d %{buildroot}%{kchome}
-install -d %{buildroot}%{_sysconfdir}/keycloak
-install -d %{buildroot}%{_unitdir}
+install -d %{buildroot}/etc/keycloak
+install -d %{buildroot}/usr/lib/systemd/system
 
 cp -a bin conf lib providers themes %{buildroot}%{kchome}/
 install -m 0644 "%{jitsi_root}/rpms/config/keycloak.conf" \
-  %{buildroot}%{_sysconfdir}/keycloak/keycloak.conf
+  %{buildroot}/etc/keycloak/keycloak.conf
 install -m 0644 "%{jitsi_root}/rpms/systemd/keycloak.service" \
-  %{buildroot}%{_unitdir}/keycloak.service
+  %{buildroot}/usr/lib/systemd/system/keycloak.service
 
 %pre
 getent group keycloak >/dev/null || groupadd -r keycloak
@@ -60,15 +60,18 @@ getent passwd keycloak >/dev/null || \
 
 %files
 %dir %attr(0755,keycloak,keycloak) %{kchome}
-%dir %attr(0755,root,root) %{_sysconfdir}/keycloak
-%config(noreplace) %{_sysconfdir}/keycloak/keycloak.conf
+%dir %attr(0755,root,root) /etc/keycloak
+%config(noreplace) /etc/keycloak/keycloak.conf
 %{kchome}/bin/
 %{kchome}/conf/
 %{kchome}/lib/
 %{kchome}/providers/
 %{kchome}/themes/
-%{_unitdir}/keycloak.service
+/usr/lib/systemd/system/keycloak.service
 
 %changelog
+* Tue Sep 01 2026 glstnd <build@local> - 26.3.2-2
+- Fix systemd unit path for rpmbuild (%{_unitdir} not expanded in CI)
+
 * Tue Sep 01 2026 glstnd <build@local> - 26.3.2-1
 - Native Keycloak tarball + kc.sh build + systemd
