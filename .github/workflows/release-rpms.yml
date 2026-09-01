@@ -55,11 +55,18 @@ jobs:
           name: rpms
           path: build/rpms/noarch
 
-      - name: Build release bundle
+      - name: Fetch prosody plugins
         run: |
-          chmod +x scripts/make-release-bundle.sh
+          mkdir -p src
+          git clone --depth 1 --branch stable/jitsi-meet_11146 \
+            https://github.com/jitsi/jitsi-meet.git src/jitsi-meet
+
+      - name: Build release bundle (offline repo)
+        run: |
+          chmod +x scripts/*.sh release/install-offline.sh
           ./scripts/make-release-bundle.sh "${GITHUB_REF_NAME}" build/rpms/noarch dist
           ls -lh dist/*.tar.gz
+          tar -tzf dist/*.tar.gz | head -30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -70,10 +77,13 @@ jobs:
           body: |
             ## Состав архива `jitsi-meet-rhel-*.tar.gz`
 
-            - **rpms/el9/** — пакеты для RHEL 9 / Rocky / AlmaLinux
+            - **repo/el9/** — локальный DNF-репозиторий (Jitsi RPM + зависимости для офлайн-установки)
+            - **rpms/el9/** — только пакеты Jitsi (для обновления)
             - **rpms/fc44/** — пакеты для Fedora 44 (noarch, совместимы по содержимому)
+            - **prosody-plugins/** — Lua-модули Prosody из jitsi-meet
             - **config-examples/** — примеры Prosody, nginx, jicofo, JVB, Keycloak, file sharing, reservations
             - **INSTALL-RHEL.md** — пошаговая установка на RHEL
+            - **install-offline.sh** — установка пакетов без интернета
             - **CHECKSUMS.sha256** — контрольные суммы RPM
 
             Распакуйте архив и следуйте `INSTALL-RHEL.md`.

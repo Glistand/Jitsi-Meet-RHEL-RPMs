@@ -8,12 +8,16 @@
 ```
 jitsi-meet-rhel-<версия>/
 ├── INSTALL-RHEL.md          # этот файл
+├── install-offline.sh       # быстрая офлайн-установка пакетов
 ├── CHECKSUMS.sha256         # контрольные суммы RPM
-├── rpms/el9/               # пакеты для RHEL 9 и совместимых
+├── repo/el9/                # локальный DNF-репозиторий (Jitsi + зависимости, repodata/)
+├── rpms/el9/                # только пакеты Jitsi (для обновления)
 │   ├── jicofo-*.rpm
 │   ├── jitsi-videobridge-*.rpm
 │   ├── jitsi-meet-web-*.rpm
 │   └── jitsi-*.rpm          # метапакет (опционально)
+├── rpms/fc44/               # Fedora 44 (если есть в релизе)
+├── prosody-plugins/         # Lua-модули Prosody из jitsi-meet
 └── config-examples/         # примеры конфигурации (замените meet.example.com)
     ├── prosody/
     ├── nginx/
@@ -24,6 +28,43 @@ jitsi-meet-rhel-<версия>/
     ├── file-sharing/
     └── reservation/
 ```
+
+## Офлайн-установка (без интернета)
+
+Архив содержит **все RPM для базового стека** на RHEL 9: Java 21, Prosody, nginx, Lua-модули и пакеты Jitsi. Интернет на целевой ВМ не нужен.
+
+```bash
+tar xzf jitsi-meet-rhel-*.tar.gz
+cd jitsi-meet-rhel-*
+
+# Проверка (опционально)
+sha256sum -c CHECKSUMS.sha256
+
+# Установка пакетов из локального репозитория
+sudo ./install-offline.sh meet.example.com   # подставьте свой домен
+```
+
+Скрипт `install-offline.sh`:
+
+1. Подключает `file://.../repo/el9` как локальный DNF-репозиторий
+2. Ставит Java, Prosody, nginx, jicofo, jitsi-videobridge, jitsi-meet-web
+3. Копирует Prosody-плагины в `/usr/share/jitsi-meet/prosody-plugins/`
+4. Открывает порты в firewalld
+
+**После установки пакетов** вручную настройте конфиги из `config-examples/` (см. разделы 3–5 ниже).
+
+> **TLS:** `certbot` для Let's Encrypt требует интернет. На изолированной ВМ используйте самоподписанный сертификат или внутренний CA:
+>
+> ```bash
+> sudo mkdir -p /etc/nginx/ssl
+> sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+>   -keyout /etc/nginx/ssl/meet.key -out /etc/nginx/ssl/meet.crt \
+>   -subj "/CN=meet.example.com"
+> ```
+>
+> Укажите пути к сертификату в `config-examples/nginx/meet.example.com.conf`.
+
+---
 
 ## Требования
 
@@ -45,6 +86,8 @@ DNS: A-запись `meet.example.com` → публичный IP сервера.
 
 ## 1. Подготовка системы
 
+**Если есть интернет** — установите зависимости из репозиториев:
+
 ```bash
 sudo dnf install -y epel-release
 sudo /usr/bin/crb enable    # CodeReady Builder — нужен для части зависимостей EPEL
@@ -56,7 +99,11 @@ sudo firewall-cmd --permanent --add-port=10000/udp
 sudo firewall-cmd --reload
 ```
 
+**Если интернета нет** — используйте `./install-offline.sh` (см. раздел «Офлайн-установка» выше), затем переходите к разделу 3.
+
 ## 2. Установка RPM
+
+**С интернетом** (только пакеты Jitsi из архива):
 
 ```bash
 tar xzf jitsi-meet-rhel-*.tar.gz
@@ -68,7 +115,9 @@ cd rpms/el9
 sudo dnf install -y ./*.rpm
 ```
 
-Или по отдельности:
+**Без интернета** — пакеты уже установлены через `install-offline.sh`; этот шаг можно пропустить.
+
+Или по отдельности (при наличии сети и уже установленных зависимостях):
 
 ```bash
 sudo dnf install -y jicofo-*.rpm jitsi-videobridge-*.rpm jitsi-meet-web-*.rpm
